@@ -46,12 +46,16 @@
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ alpha, beta, gamma })
             })
-            .then(response => {
+           .then(response => {
                 if (!response.ok) {
-                    throw new Error('Erro ao enviar dados: ' + response.statusText);
-                }
-                return response.json();
+            return response.text().then(text => {
+                throw new Error('Erro ao enviar dados: ' + text);
+               });
+               }
+            return response.json();
             })
+           
+
             .then(data => {
                 statusElement.innerText = "Dados do giroscópio enviados com sucesso!";
                 console.log(data);
