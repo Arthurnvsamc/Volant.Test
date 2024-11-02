@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de LED do Arduino</title>
+    <title>Controle do LED do Arduino</title>
     <style>
         body {
             display: flex;
@@ -26,48 +26,39 @@
         }
         button {
             padding: 10px 20px;
-            font-size: 18px;
+            font-size: 16px;
             cursor: pointer;
-            border: none;
-            border-radius: 5px;
-            background-color: #4CAF50;
-            color: white;
-        }
-        button:disabled {
-            background-color: #ccc;
+            margin: 5px;
         }
     </style>
 </head>
 <body>
     <h1>Controle do LED do Arduino</h1>
-    <div id="status">LED está desligado.</div>
-    <button id="toggleButton">Ligar LED</button>
+    <div id="status">Aguardando comando...</div>
+    <button id="toggleButton" onclick="toggleLED()">Ligar LED</button>
 
     <script>
         const statusElement = document.getElementById('status');
-        const toggleButton = document.getElementById('toggleButton');
         let ledState = false; // Estado inicial do LED
 
-        toggleButton.addEventListener('click', function() {
+        function toggleLED() {
             ledState = !ledState; // Alterna o estado do LED
-            sendLedCommand(ledState);
-        });
-
-        function sendLedCommand(state) {
-            fetch("http://192.168.200.251:5000/led", {
+            fetch("http://192.168.200.251:5000/led", { // Altere para o IP correto se necessário
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ state: state })
+                body: JSON.stringify({ state: ledState })
             })
             .then(response => {
                 if (!response.ok) {
-                    throw new Error('Erro ao enviar comando: ' + response.statusText);
+                    return response.text().then(text => {
+                        throw new Error('Erro ao enviar comando: ' + text);
+                    });
                 }
                 return response.text();
             })
             .then(data => {
-                statusElement.innerText = `LED está ${state ? 'ligado' : 'desligado'}.`;
-                toggleButton.innerText = state ? 'Desligar LED' : 'Ligar LED';
+                statusElement.innerText = `LED está ${ledState ? 'ligado' : 'desligado'}.`;
+                document.getElementById('toggleButton').innerText = ledState ? 'Desligar LED' : 'Ligar LED';
             })
             .catch(error => {
                 statusElement.innerText = "Erro ao enviar comando.";
