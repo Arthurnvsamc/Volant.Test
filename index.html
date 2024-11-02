@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Movimento do Celular</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        #output {
+            font-size: 24px;
+            margin: 20px;
+            padding: 20px;
+            background-color: #fff;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Teste de Movimento do Celular</h1>
+    <div id="output">Movimente o dispositivo</div>
+
+    <script>
+        // Verifica se a API DeviceOrientation está disponível
+        if (window.DeviceOrientationEvent) {
+            // Adiciona um listener para eventos de orientação
+            window.addEventListener('deviceorientation', function(event) {
+                const alpha = event.alpha; // rotação em torno do eixo Z
+                const beta = event.beta;   // rotação em torno do eixo X
+                const gamma = event.gamma;  // rotação em torno do eixo Y
+
+                // Atualiza o conteúdo do elemento de saída
+                document.getElementById('output').innerText = 
+                    `Alpha: ${alpha?.toFixed(2)}\nBeta: ${beta?.toFixed(2)}\nGamma: ${gamma?.toFixed(2)}`;
+            });
+        } else {
+            document.getElementById('output').innerText = "DeviceOrientation não suportado.";
+        }
+    </script>
+</body>
+</html>
