@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Teste de Movimento do Celular</title>
+    <title>Controle de Volante</title>
     <style>
         body {
             display: flex;
@@ -12,37 +12,62 @@
             justify-content: center;
             height: 100vh;
             background-color: #f0f0f0;
-            font-family: Arial, sans-serif;
         }
         #output {
             font-size: 24px;
             margin: 20px;
-            padding: 20px;
-            background-color: #fff;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+        }
+        #feedback {
+            width: 100px;
+            height: 100px;
+            border: 2px solid black;
+            border-radius: 50%;
+            background-color: lightgray;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background-color 0.2s;
         }
     </style>
 </head>
 <body>
-    <h1>Teste de Movimento do Celular</h1>
+    <h1>Controle de Volante</h1>
     <div id="output">Movimente o dispositivo</div>
+    <div id="feedback">Feedback</div>
 
     <script>
-        // Verifica se a API DeviceOrientation está disponível
+        const socket = new WebSocket('ws://192.168.1.x:8080'); // Substitua pelo IP do seu servidor
+
+        // Verifique se a API DeviceOrientation está disponível
         if (window.DeviceOrientationEvent) {
-            // Adiciona um listener para eventos de orientação
             window.addEventListener('deviceorientation', function(event) {
                 const alpha = event.alpha; // rotação em torno do eixo Z
                 const beta = event.beta;   // rotação em torno do eixo X
                 const gamma = event.gamma;  // rotação em torno do eixo Y
 
-                // Atualiza o conteúdo do elemento de saída
+                // Atualiza a saída no HTML
                 document.getElementById('output').innerText = 
-                    `Alpha: ${alpha?.toFixed(2)}\nBeta: ${beta?.toFixed(2)}\nGamma: ${gamma?.toFixed(2)}`;
+                    `Alpha: ${alpha}\nBeta: ${beta}\nGamma: ${gamma}`;
+
+                // Envie os dados para o servidor WebSocket
+                const dataToSend = JSON.stringify({ alpha, beta, gamma });
+                socket.send(dataToSend);
+
+                // Feedback visual
+                const feedback = document.getElementById('feedback');
+                feedback.style.backgroundColor = 'lightgreen';
+                setTimeout(() => {
+                    feedback.style.backgroundColor = 'lightgray';
+                }, 100);
+            });
+
+            // Adicione uma mensagem de console se a orientação for recebida
+            window.addEventListener('deviceorientation', function(event) {
+                console.log("DeviceOrientation: ", event.alpha, event.beta, event.gamma);
             });
         } else {
             document.getElementById('output').innerText = "DeviceOrientation não suportado.";
+            console.log("DeviceOrientation não suportado.");
         }
     </script>
 </body>
