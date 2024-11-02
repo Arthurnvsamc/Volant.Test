@@ -39,7 +39,9 @@
         const outputElement = document.getElementById('output');
 
         function sendOrientationData(alpha, beta, gamma) {
-            fetch("http://192.168.200.245:PORTA/api", { // Substitua PORTA pela porta correta do seu Arduino
+            console.log({ alpha, beta, gamma }); // Log os dados do giroscópio
+
+            fetch("http://192.168.200.251:5000/gyro", { // Certifique-se de que este IP está correto
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ alpha, beta, gamma })
