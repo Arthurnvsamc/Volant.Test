@@ -31,69 +31,48 @@
 </head>
 <body>
     <h1>Controle de Giroscópio do Celular</h1>
-    <div id="status">Conectando ao WebSocket...</div>
+    <div id="status">Conectando...</div>
     <div id="output">Movimente o dispositivo para ver os dados do giroscópio.</div>
 
-   <script>
+    <script>
+        const statusElement = document.getElementById('status');
+        const outputElement = document.getElementById('output');
 
-    function sendOrientationData(alpha, beta, gamma) {
-    fetch("http://192.168.200.251:5000/gyro", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ alpha, beta, gamma })
-    });
-}
-
-    let websocket;
-    const statusElement = document.getElementById("status");
-
-    function startWebSocket() {
-        websocket = new WebSocket("ws://192.168.200.251:8080");
-
-        websocket.onopen = function() {
-            statusElement.innerText = "WebSocket Conectado!";
-        };
-
-        websocket.onclose = function() {
-            statusElement.innerText = "WebSocket Desconectado. Tentando reconectar...";
-            setTimeout(startWebSocket, 2000); // Tenta reconectar após 2 segundos
-        };
-
-        websocket.onerror = function(error) {
-            statusElement.innerText = "Erro no WebSocket.";
-            console.error("Erro WebSocket:", error);
-        };
-
-        websocket.onmessage = function(event) {
-            console.log("Mensagem do Servidor:", event.data);
-        };
-    }
-
-    function sendOrientationData(alpha, beta, gamma) {
-        if (websocket && websocket.readyState === WebSocket.OPEN) {
-            const data = JSON.stringify({ alpha, beta, gamma });
-            websocket.send(data);
-            statusElement.innerText = "Dados do giroscópio enviados!";
-        } else {
-            statusElement.innerText = "WebSocket não está conectado.";
+        function sendOrientationData(alpha, beta, gamma) {
+            fetch("http://192.168.200.245:PORTA/api", { // Substitua PORTA pela porta correta do seu Arduino
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ alpha, beta, gamma })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Erro ao enviar dados: ' + response.statusText);
+                }
+                return response.json();
+            })
+            .then(data => {
+                statusElement.innerText = "Dados do giroscópio enviados com sucesso!";
+                console.log(data);
+            })
+            .catch(error => {
+                statusElement.innerText = "Erro ao enviar dados.";
+                console.error('Erro:', error);
+            });
         }
-    }
 
-    if (window.DeviceOrientationEvent) {
-        window.addEventListener('deviceorientation', function(event) {
-            const alpha = event.alpha || 0;
-            const beta = event.beta || 0;
-            const gamma = event.gamma || 0;
-            document.getElementById('output').innerText = 
-                `Alpha: ${alpha.toFixed(2)}\nBeta: ${beta.toFixed(2)}\nGamma: ${gamma.toFixed(2)}`;
-            sendOrientationData(alpha, beta, gamma);
-        });
-    } else {
-        document.getElementById('output').innerText = "DeviceOrientation não suportado.";
-    }
+        if (window.DeviceOrientationEvent) {
+            window.addEventListener('deviceorientation', function(event) {
+                const alpha = event.alpha || 0;
+                const beta = event.beta || 0;
+                const gamma = event.gamma || 0;
 
-    window.onload = startWebSocket;
-</script>
-
+                outputElement.innerText = 
+                    `Alpha: ${alpha.toFixed(2)}\nBeta: ${beta.toFixed(2)}\nGamma: ${gamma.toFixed(2)}`;
+                sendOrientationData(alpha, beta, gamma);
+            });
+        } else {
+            outputElement.innerText = "DeviceOrientation não suportado.";
+        }
+    </script>
 </body>
 </html>
