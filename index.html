@@ -35,6 +35,15 @@
     <div id="output">Movimente o dispositivo para ver os dados do giroscópio.</div>
 
    <script>
+
+    function sendOrientationData(alpha, beta, gamma) {
+    fetch("http://192.168.200.251:5000/gyro", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ alpha, beta, gamma })
+    });
+}
+
     let websocket;
     const statusElement = document.getElementById("status");
 
