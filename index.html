@@ -34,64 +34,57 @@
     <div id="status">Conectando ao WebSocket...</div>
     <div id="output">Movimente o dispositivo para ver os dados do giroscópio.</div>
 
-    <script>
-        let websocket;
+   <script>
+    let websocket;
+    const statusElement = document.getElementById("status");
 
-        // Função para iniciar a conexão WebSocket
-        function startWebSocket() {
-            // Conecta ao servidor WebSocket
-            websocket = new WebSocket("ws://0.0.0.0:8080");
+    function startWebSocket() {
+        websocket = new WebSocket("ws://192.168.200.251:8080");
 
-            // Eventos do WebSocket
-            websocket.onopen = function() {
-                document.getElementById("status").innerText = "WebSocket Conectado!";
-            };
+        websocket.onopen = function() {
+            statusElement.innerText = "WebSocket Conectado!";
+        };
 
-            websocket.onclose = function() {
-                document.getElementById("status").innerText = "WebSocket Desconectado.";
-            };
+        websocket.onclose = function() {
+            statusElement.innerText = "WebSocket Desconectado. Tentando reconectar...";
+            setTimeout(startWebSocket, 2000); // Tenta reconectar após 2 segundos
+        };
 
-            websocket.onerror = function(error) {
-                document.getElementById("status").innerText = "Erro no WebSocket.";
-                console.error("WebSocket Error:", error);
-            };
+        websocket.onerror = function(error) {
+            statusElement.innerText = "Erro no WebSocket.";
+            console.error("Erro WebSocket:", error);
+        };
 
-            websocket.onmessage = function(event) {
-                console.log("Mensagem do Servidor:", event.data);
-            };
-        }
+        websocket.onmessage = function(event) {
+            console.log("Mensagem do Servidor:", event.data);
+        };
+    }
 
-        // Função para enviar dados do giroscópio
-        function sendOrientationData(alpha, beta, gamma) {
-            if (websocket && websocket.readyState === WebSocket.OPEN) {
-                const data = JSON.stringify({ alpha, beta, gamma });
-                websocket.send(data);
-                document.getElementById("status").innerText = "Dados do giroscópio enviados!";
-            } else {
-                document.getElementById("status").innerText = "WebSocket não está conectado.";
-            }
-        }
-
-        // Verifica se a API DeviceOrientation está disponível
-        if (window.DeviceOrientationEvent) {
-            window.addEventListener('deviceorientation', function(event) {
-                const alpha = event.alpha || 0;
-                const beta = event.beta || 0;
-                const gamma = event.gamma || 0;
-
-                // Exibe os dados de orientação na tela
-                document.getElementById('output').innerText = 
-                    `Alpha: ${alpha.toFixed(2)}\nBeta: ${beta.toFixed(2)}\nGamma: ${gamma.toFixed(2)}`;
-
-                // Envia os dados de orientação para o WebSocket
-                sendOrientationData(alpha, beta, gamma);
-            });
+    function sendOrientationData(alpha, beta, gamma) {
+        if (websocket && websocket.readyState === WebSocket.OPEN) {
+            const data = JSON.stringify({ alpha, beta, gamma });
+            websocket.send(data);
+            statusElement.innerText = "Dados do giroscópio enviados!";
         } else {
-            document.getElementById('output').innerText = "DeviceOrientation não suportado.";
+            statusElement.innerText = "WebSocket não está conectado.";
         }
+    }
 
-        // Inicia a conexão WebSocket ao carregar a página
-        window.onload = startWebSocket;
-    </script>
+    if (window.DeviceOrientationEvent) {
+        window.addEventListener('deviceorientation', function(event) {
+            const alpha = event.alpha || 0;
+            const beta = event.beta || 0;
+            const gamma = event.gamma || 0;
+            document.getElementById('output').innerText = 
+                `Alpha: ${alpha.toFixed(2)}\nBeta: ${beta.toFixed(2)}\nGamma: ${gamma.toFixed(2)}`;
+            sendOrientationData(alpha, beta, gamma);
+        });
+    } else {
+        document.getElementById('output').innerText = "DeviceOrientation não suportado.";
+    }
+
+    window.onload = startWebSocket;
+</script>
+
 </body>
 </html>
