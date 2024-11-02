@@ -12,12 +12,24 @@
             justify-content: center;
             height: 100vh;
             background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        h1 {
+            margin-bottom: 20px;
         }
         #output {
             font-size: 24px;
             margin: 20px;
+            text-align: center;
         }
         #feedback {
+            display: flex;
+            justify-content: space-around;
+            width: 100%;
+            max-width: 600px;
+            margin: 20px;
+        }
+        .indicator {
             width: 100px;
             height: 100px;
             border: 2px solid black;
@@ -26,14 +38,18 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            transition: background-color 0.2s;
+            transition: background-color 0.2s, transform 0.2s;
         }
     </style>
 </head>
 <body>
     <h1>Controle de Volante</h1>
     <div id="output">Movimente o dispositivo</div>
-    <div id="feedback">Feedback</div>
+    <div id="feedback">
+        <div id="alpha" class="indicator">Alpha</div>
+        <div id="beta" class="indicator">Beta</div>
+        <div id="gamma" class="indicator">Gamma</div>
+    </div>
 
     <script>
         const socket = new WebSocket('ws://192.168.200.251:8080'); // Substitua pelo IP do seu servidor
@@ -41,8 +57,6 @@
         // Verifique se a API DeviceOrientation está disponível
         if (window.DeviceOrientationEvent) {
             window.addEventListener('deviceorientation', function(event) {
-                console.log("DeviceOrientation Event Triggered"); // Para debugar
-
                 const alpha = event.alpha; // rotação em torno do eixo Z
                 const beta = event.beta;   // rotação em torno do eixo X
                 const gamma = event.gamma;  // rotação em torno do eixo Y
@@ -55,12 +69,30 @@
                 const dataToSend = JSON.stringify({ alpha, beta, gamma });
                 socket.send(dataToSend);
 
-                // Feedback visual
-                const feedback = document.getElementById('feedback');
-                feedback.style.backgroundColor = 'lightgreen';
+                // Feedback visual para cada eixo
+                const alphaIndicator = document.getElementById('alpha');
+                const betaIndicator = document.getElementById('beta');
+                const gammaIndicator = document.getElementById('gamma');
+
+                // Altera a cor de fundo e adiciona uma leve transformação
+                alphaIndicator.style.backgroundColor = 'lightgreen';
+                betaIndicator.style.backgroundColor = 'lightblue';
+                gammaIndicator.style.backgroundColor = 'lightcoral';
+                
+                alphaIndicator.style.transform = 'scale(1.1)';
+                betaIndicator.style.transform = 'scale(1.1)';
+                gammaIndicator.style.transform = 'scale(1.1)';
+
+                // Restaura o feedback visual após um pequeno atraso
                 setTimeout(() => {
-                    feedback.style.backgroundColor = 'lightgray';
-                }, 100);
+                    alphaIndicator.style.backgroundColor = 'lightgray';
+                    betaIndicator.style.backgroundColor = 'lightgray';
+                    gammaIndicator.style.backgroundColor = 'lightgray';
+
+                    alphaIndicator.style.transform = 'scale(1)';
+                    betaIndicator.style.transform = 'scale(1)';
+                    gammaIndicator.style.transform = 'scale(1)';
+                }, 300);
             });
         } else {
             document.getElementById('output').innerText = "DeviceOrientation não suportado.";
