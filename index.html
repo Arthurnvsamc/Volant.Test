@@ -41,6 +41,8 @@
         // Verifique se a API DeviceOrientation está disponível
         if (window.DeviceOrientationEvent) {
             window.addEventListener('deviceorientation', function(event) {
+                console.log("DeviceOrientation Event Triggered"); // Para debugar
+
                 const alpha = event.alpha; // rotação em torno do eixo Z
                 const beta = event.beta;   // rotação em torno do eixo X
                 const gamma = event.gamma;  // rotação em torno do eixo Y
@@ -59,11 +61,6 @@
                 setTimeout(() => {
                     feedback.style.backgroundColor = 'lightgray';
                 }, 100);
-            });
-
-            // Adicione uma mensagem de console se a orientação for recebida
-            window.addEventListener('deviceorientation', function(event) {
-                console.log("DeviceOrientation: ", event.alpha, event.beta, event.gamma);
             });
         } else {
             document.getElementById('output').innerText = "DeviceOrientation não suportado.";
