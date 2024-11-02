@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Controle de Volante</title>
+    <title>Teste de Movimento do Celular</title>
     <style>
         body {
             display: flex;
@@ -21,29 +21,14 @@
             background-color: #fff;
             border: 1px solid #ccc;
             border-radius: 5px;
-            text-align: center;
-        }
-        #feedback {
-            width: 100px;
-            height: 100px;
-            border: 2px solid black;
-            border-radius: 50%;
-            background-color: lightgray;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: background-color 0.2s;
         }
     </style>
 </head>
 <body>
-    <h1>Controle de Volante</h1>
+    <h1>Teste de Movimento do Celular</h1>
     <div id="output">Movimente o dispositivo</div>
-    <div id="feedback">Feedback</div>
 
     <script>
-        const socket = new WebSocket('ws://192.168.200.251:8080'); // Substitua pelo IP do seu servidor
-
         // Verifica se a API DeviceOrientation está disponível
         if (window.DeviceOrientationEvent) {
             // Adiciona um listener para eventos de orientação
@@ -55,24 +40,9 @@
                 // Atualiza o conteúdo do elemento de saída
                 document.getElementById('output').innerText = 
                     `Alpha: ${alpha?.toFixed(2)}\nBeta: ${beta?.toFixed(2)}\nGamma: ${gamma?.toFixed(2)}`;
-
-                // Envie os dados para o servidor WebSocket
-                const dataToSend = JSON.stringify({ alpha, beta, gamma });
-                if (socket.readyState === WebSocket.OPEN) {
-                    socket.send(dataToSend);
-                    console.log("Enviando dados:", dataToSend); // Log para verificar se os dados estão sendo enviados
-
-                    // Feedback visual
-                    const feedback = document.getElementById('feedback');
-                    feedback.style.backgroundColor = 'lightgreen';
-                    setTimeout(() => {
-                        feedback.style.backgroundColor = 'lightgray';
-                    }, 100);
-                }
             });
         } else {
             document.getElementById('output').innerText = "DeviceOrientation não suportado.";
-            console.log("DeviceOrientation não suportado.");
         }
     </script>
 </body>
